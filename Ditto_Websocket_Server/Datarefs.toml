@@ -1,0 +1,36 @@
+[[Endpoints]]
+address = "127.0.0.1"
+port = 6996
+name = "Pylon"
+
+[[Data]]
+name = "Airspeed"
+string = "sim/flightmodel/position/indicated_airspeed"
+type = "float"
+
+[[Data]]
+name = "Latitude"
+string = "sim/flightmodel/position/latitude"
+type = "float"
+
+[[Data]]
+name = "Longitude"
+string = "sim/flightmodel/position/longitude"
+type = "float"
+
+[[Data]]
+name = "Altitude"
+string = "sim/cockpit2/gauges/indicators/altitude_ft_pilot"
+type = "float"
+
+[[Data]]
+name = "Heading"
+string = "sim/flightmodel/position/mag_psi"
+type = "float"
+
+[[Data]]
+name = "N2_Percent"
+string = "sim/cockpit2/engine/indicators/N2_percent"
+type = "float"
+start_index = 0
+num_value = 1
