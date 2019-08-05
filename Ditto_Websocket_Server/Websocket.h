@@ -11,13 +11,13 @@ public:
 	broadcast_server();
 	void run();
 	void send(uint8_t* send_buf, int size);
-	void on_open(websocketpp::connection_hdl hdl);
-	void on_close(websocketpp::connection_hdl hdl);
-	void on_message(websocketpp::connection_hdl hdl, server::message_ptr msg);
-
+	void stop();
 private:
 	server m_server;
 	std::set<websocketpp::connection_hdl, std::owner_less<websocketpp::connection_hdl>> m_connections;
 	websocketpp::lib::mutex m_action_lock;
 	websocketpp::lib::mutex m_connection_lock;
+	void on_open(websocketpp::connection_hdl hdl);
+	void on_close(websocketpp::connection_hdl hdl);
+	void on_message(websocketpp::connection_hdl hdl, server::message_ptr msg);
 };

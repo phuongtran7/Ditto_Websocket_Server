@@ -3,8 +3,9 @@
 #include "XPLMDataAccess.h"
 #include "XPLMProcessing.h"
 
-broadcast_server server_instance;
+broadcast_server server_instance{};
 dataref new_data;
+websocketpp::lib::thread asio_thread;
 
 std::string get_plugin_path()
 {
@@ -44,8 +45,9 @@ PLUGIN_API int XPluginStart(
 
 PLUGIN_API void	XPluginStop(void)
 {
-	new_data.empty_list();
-	XPLMUnregisterFlightLoopCallback(listenCallback, nullptr);
+	//new_data.empty_list();
+	//XPLMUnregisterFlightLoopCallback(listenCallback, nullptr);
+	server_instance.stop();
 	XPLMDebugString("Stopping Ditto.\n");
 }
 
@@ -58,13 +60,14 @@ PLUGIN_API void XPluginDisable(void) {
 PLUGIN_API int  XPluginEnable(void) {
 	if (!new_data.get_status()) {
 		try {
-			websocketpp::lib::thread asio_thread(&broadcast_server::run, &server_instance);
+			asio_thread = websocketpp::lib::thread(&broadcast_server::run, &server_instance);
 			const auto path = get_plugin_path();
 			new_data.set_plugin_path(path);
 			new_data.init();
 		}
 		catch (websocketpp::exception const& e) {
 			XPLMDebugString(e.what());
+			return 0;
 		}
 		XPLMRegisterFlightLoopCallback(listenCallback, -1.0, nullptr);
 	}

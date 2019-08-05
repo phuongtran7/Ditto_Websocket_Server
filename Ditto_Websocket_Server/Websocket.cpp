@@ -1,4 +1,5 @@
 #include "Websocket.h"
+#include "XPLMUtilities.h"
 
 broadcast_server::broadcast_server() {
 	// Initialize Asio Transport
@@ -8,6 +9,11 @@ broadcast_server::broadcast_server() {
 	m_server.set_open_handler(websocketpp::lib::bind(&broadcast_server::on_open, this, websocketpp::lib::placeholders::_1));
 	m_server.set_close_handler(websocketpp::lib::bind(&broadcast_server::on_close, this, websocketpp::lib::placeholders::_1));
 	m_server.set_message_handler(websocketpp::lib::bind(&broadcast_server::on_message, this, websocketpp::lib::placeholders::_1, websocketpp::lib::placeholders::_2));
+}
+
+void broadcast_server::stop() {
+	m_server.stop_listening();
+	m_server.stop();
 }
 
 void broadcast_server::run() {
@@ -21,8 +27,9 @@ void broadcast_server::run() {
 	try {
 		m_server.run();
 	}
-	catch (const std::exception& e) {
-		std::cout << e.what() << std::endl;
+	catch (const websocketpp::exception& e) {
+		//std::cout << e.what() << std::endl;
+		XPLMDebugString(e.what());
 	}
 }
 
