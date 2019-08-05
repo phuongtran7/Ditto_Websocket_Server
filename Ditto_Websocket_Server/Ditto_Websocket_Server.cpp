@@ -7,21 +7,6 @@ broadcast_server server_instance{};
 dataref new_data;
 websocketpp::lib::thread asio_thread;
 
-std::string get_plugin_path()
-{
-	const auto my_id = XPLMFindPluginBySignature("phuong.x-plane.ditto.websocket");;
-	char buffer[1024]{};
-	XPLMGetPluginInfo(my_id, nullptr, buffer, nullptr, nullptr);
-	auto return_string = std::string(buffer);
-	auto pos = return_string.find(R"(64\win.xpl)");
-	if (pos != std::string::npos)
-	{
-		// XPLMGetPluginInfo return absolute path to win.xpl file so it need to be trimmed off the string
-		return_string.erase(pos, return_string.length()); // Trim "64\win.xpl"
-	}
-	return return_string;
-}
-
 static float	listenCallback(
 	float                inElapsedSinceLastCall,
 	float                inElapsedTimeSinceLastFlightLoop,
@@ -61,8 +46,6 @@ PLUGIN_API int  XPluginEnable(void) {
 	if (!new_data.get_status()) {
 		try {
 			asio_thread = websocketpp::lib::thread(&broadcast_server::run, &server_instance);
-			const auto path = get_plugin_path();
-			new_data.set_plugin_path(path);
 			new_data.init();
 		}
 		catch (websocketpp::exception const& e) {

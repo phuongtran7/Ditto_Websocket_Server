@@ -17,7 +17,7 @@ void broadcast_server::stop() {
 	{
 		// Closing all outstanding connections with normal (1000) code
 		for (auto it = m_connections.begin(); it != m_connections.end(); ++it) {
-			m_server.close(*it, 1000, "");
+			m_server.close(*it, websocketpp::close::status::normal, "");
 		}
 	}
 }
