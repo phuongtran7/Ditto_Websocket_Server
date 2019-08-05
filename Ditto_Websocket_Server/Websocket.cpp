@@ -1,5 +1,4 @@
 #include "Websocket.h"
-#include "XPLMUtilities.h"
 
 broadcast_server::broadcast_server() {
 	// Initialize Asio Transport
@@ -13,10 +12,22 @@ broadcast_server::broadcast_server() {
 
 void broadcast_server::stop() {
 	m_server.stop_listening();
-	m_server.stop();
+	websocketpp::lib::lock_guard<websocketpp::lib::mutex> guard(m_connection_lock);
+	if (!m_connections.empty())
+	{
+		// Closing all outstanding connections with normal (1000) code
+		for (auto it = m_connections.begin(); it != m_connections.end(); ++it) {
+			m_server.close(*it, 1000, "");
+		}
+	}
 }
 
 void broadcast_server::run() {
+
+	if (m_server.stopped()) {
+		m_server.reset();
+	}
+
 	// listen on specified port
 	m_server.listen(1234);
 
@@ -28,8 +39,7 @@ void broadcast_server::run() {
 		m_server.run();
 	}
 	catch (const websocketpp::exception& e) {
-		//std::cout << e.what() << std::endl;
-		XPLMDebugString(e.what());
+		std::cout << e.what() << std::endl;
 	}
 }
 

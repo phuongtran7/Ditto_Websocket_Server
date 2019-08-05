@@ -45,14 +45,14 @@ PLUGIN_API int XPluginStart(
 
 PLUGIN_API void	XPluginStop(void)
 {
-	//new_data.empty_list();
-	//XPLMUnregisterFlightLoopCallback(listenCallback, nullptr);
-	server_instance.stop();
 	XPLMDebugString("Stopping Ditto.\n");
 }
 
 PLUGIN_API void XPluginDisable(void) {
 	new_data.empty_list();
+	server_instance.stop();
+	// Wait for io_service to cleanly exit
+	asio_thread.join();
 	XPLMUnregisterFlightLoopCallback(listenCallback, nullptr);
 	XPLMDebugString("Disabling Ditto.\n");
 }
