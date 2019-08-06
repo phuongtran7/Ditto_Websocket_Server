@@ -10,7 +10,7 @@ class broadcast_server {
 public:
 	broadcast_server();
 	void run();
-	void send(uint8_t* send_buf, int size);
+	void send(uint8_t* send_buf, size_t size);
 	void stop();
 private:
 	server m_server;

@@ -43,7 +43,7 @@ void broadcast_server::run() {
 	}
 }
 
-void broadcast_server::send(uint8_t* send_buf, int size)
+void broadcast_server::send(uint8_t* send_buf, size_t size)
 {
 	websocketpp::lib::lock_guard<websocketpp::lib::mutex> guard(m_connection_lock);
 	if (!m_connections.empty())
