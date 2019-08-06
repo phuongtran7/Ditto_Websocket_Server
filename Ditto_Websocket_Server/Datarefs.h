@@ -17,7 +17,7 @@ private:
 		XPLMDataRef dataref{};
 		std::string type{};
 		std::optional<int> start_index{};
-		std::optional<int> num_value{}; // Number of values in the array to get starts at start_index
+		std::optional<int> num_value{}; // Number of values in the array to get; starts at start_index
 	};
 
 	std::vector<dataref_info> dataref_list_;

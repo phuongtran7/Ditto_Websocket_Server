@@ -36,7 +36,9 @@ PLUGIN_API void XPluginDisable(void) {
 	server_instance.stop();
 	// Wait for io_service to cleanly exit
 	asio_thread.join();
-	XPLMDestroyFlightLoop(flight_loop_id);
+	if (flight_loop_id != nullptr) {
+		XPLMDestroyFlightLoop(flight_loop_id);
+	}
 	XPLMDebugString("Disabling Ditto.\n");
 }
 
