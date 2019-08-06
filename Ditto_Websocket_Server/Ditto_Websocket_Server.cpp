@@ -6,7 +6,7 @@
 broadcast_server server_instance{};
 dataref new_data;
 websocketpp::lib::thread asio_thread;
-XPLMFlightLoopID flight_loop_id;
+XPLMFlightLoopID flight_loop_id{};
 
 static float	listenCallback(
 	float                inElapsedSinceLastCall,
@@ -52,8 +52,12 @@ PLUGIN_API int  XPluginEnable(void) {
 		}
 		XPLMCreateFlightLoop_t params = { sizeof(XPLMCreateFlightLoop_t), xplm_FlightLoop_Phase_AfterFlightModel, listenCallback, nullptr };
 		flight_loop_id = XPLMCreateFlightLoop(&params);
-		if (flight_loop_id != nullptr)
+		if (flight_loop_id == nullptr)
 		{
+			XPLMDebugString("Cannot create flight loop. Exiting Ditto.\n");
+			return 0;
+		}
+		else {
 			XPLMScheduleFlightLoop(flight_loop_id, -1, true);
 		}
 	}
@@ -78,7 +82,6 @@ float listenCallback(float inElapsedSinceLastCall,
 	else {
 		XPLMDebugString("Flatbuffers verifier failed.\n");
 	}
-
 	new_data.reset_builder();
 	return -1.0;
 }

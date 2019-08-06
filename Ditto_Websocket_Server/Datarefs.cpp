@@ -155,7 +155,7 @@ std::vector<int> dataref::get_value_int_array(XPLMDataRef in_dataref, int start_
 	}
 	return return_val;*/
 
-	std::shared_ptr<int[]> temp(new int[number_of_value]);
+	std::unique_ptr<int[]> temp(new int[number_of_value]);
 	XPLMGetDatavi(in_dataref, temp.get(), start_index, number_of_value);
 	return std::vector<int>(temp.get(), temp.get() + number_of_value);
 }
@@ -169,7 +169,7 @@ std::vector<float> dataref::get_value_float_array(XPLMDataRef in_dataref, int st
 	}
 	return return_val;*/
 
-	std::shared_ptr<float[]> temp(new float[number_of_value]);
+	std::unique_ptr<float[]> temp(new float[number_of_value]);
 	XPLMGetDatavf(in_dataref, temp.get(), start_index, number_of_value);
 	return std::vector<float>(temp.get(), temp.get() + number_of_value);
 }
@@ -181,7 +181,7 @@ std::string dataref::get_value_char_array(XPLMDataRef in_dataref, int start_inde
 	delete[] temp;
 	return return_val;*/
 
-	std::shared_ptr<char[]> temp(new char[number_of_value]);
+	std::unique_ptr<char[]> temp(new char[number_of_value]{'\n'});
 	XPLMGetDatab(in_dataref, temp.get(), start_index, number_of_value);
 	return std::string(temp.get());
 }
