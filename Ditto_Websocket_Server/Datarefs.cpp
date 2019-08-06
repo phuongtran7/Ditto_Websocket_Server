@@ -41,7 +41,6 @@ size_t dataref::get_serialized_size()
 
 std::vector<uint8_t> dataref::get_flexbuffers_data() 
 {
-
 	const auto map_start = flexbuffers_builder_.StartMap();
 
 	for (auto& dataref : dataref_list_) {
