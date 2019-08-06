@@ -5,13 +5,15 @@ std::vector<dataref::dataref_info> dataref::get_list()
 	return dataref_list_;
 }
 
-void dataref::reset_builder() {
+void dataref::reset_builder() 
+{
 	flexbuffers_builder_.Clear();
 	flatbuffers_builder_.Clear();
 }
 
 // Remove all the dataref in the dataref list
-void dataref::empty_list() {
+void dataref::empty_list() 
+{
 	dataref_list_.clear();
 	reset_builder();
 	set_status(false);
@@ -37,7 +39,8 @@ size_t dataref::get_serialized_size()
 	return flatbuffers_builder_.GetSize();
 }
 
-std::vector<uint8_t> dataref::get_flexbuffers_data() {
+std::vector<uint8_t> dataref::get_flexbuffers_data() 
+{
 
 	const auto map_start = flexbuffers_builder_.StartMap();
 
@@ -83,15 +86,18 @@ std::vector<uint8_t> dataref::get_flexbuffers_data() {
 	return flexbuffers_builder_.GetBuffer();
 }
 
-bool dataref::get_status() {
+bool dataref::get_status() 
+{
 	return status_;
 }
 
-void dataref::set_status(bool in_status) {
+void dataref::set_status(bool in_status) 
+{
 	status_ = in_status;
 }
 
-size_t dataref::get_flexbuffers_size() {
+size_t dataref::get_flexbuffers_size() 
+{
 	return flexbuffers_builder_.GetSize();
 }
 
@@ -138,55 +144,39 @@ int dataref::get_value_int(XPLMDataRef in_dataref)
 	return XPLMGetDatai(in_dataref);
 }
 
-float dataref::get_value_float(XPLMDataRef in_dataref) {
+float dataref::get_value_float(XPLMDataRef in_dataref)
+{
 	return XPLMGetDataf(in_dataref);
 }
 
-double dataref::get_value_double(XPLMDataRef in_dataref) {
+double dataref::get_value_double(XPLMDataRef in_dataref)
+{
 	return XPLMGetDatad(in_dataref);
 }
 
-std::vector<int> dataref::get_value_int_array(XPLMDataRef in_dataref, int start_index, int number_of_value) {
-	/*std::vector<int> return_val;
-	for (auto i = 0; i <= number_of_value; ++i) {
-		int temp;
-		XPLMGetDatavi(in_dataref, &temp, start_index, 1);
-		return_val.emplace_back(temp);
-	}
-	return return_val;*/
-
+std::vector<int> dataref::get_value_int_array(XPLMDataRef in_dataref, int start_index, int number_of_value)
+{
 	std::unique_ptr<int[]> temp(new int[number_of_value]);
 	XPLMGetDatavi(in_dataref, temp.get(), start_index, number_of_value);
 	return std::vector<int>(temp.get(), temp.get() + number_of_value);
 }
 
-std::vector<float> dataref::get_value_float_array(XPLMDataRef in_dataref, int start_index, int number_of_value) {
-	/*std::vector<float> return_val;
-	for (auto i = 0; i <= number_of_value; ++i) {
-		float temp;
-		XPLMGetDatavf(in_dataref, &temp, start_index, 1);
-		return_val.emplace_back(temp);
-	}
-	return return_val;*/
-
+std::vector<float> dataref::get_value_float_array(XPLMDataRef in_dataref, int start_index, int number_of_value)
+{
 	std::unique_ptr<float[]> temp(new float[number_of_value]);
 	XPLMGetDatavf(in_dataref, temp.get(), start_index, number_of_value);
 	return std::vector<float>(temp.get(), temp.get() + number_of_value);
 }
 
-std::string dataref::get_value_char_array(XPLMDataRef in_dataref, int start_index, int number_of_value) {
-	/*char* temp = new char[number_of_value + 1]{'\n'};
-	XPLMGetDatab(in_dataref, temp, start_index, number_of_value);
-	auto return_val = std::string(temp);
-	delete[] temp;
-	return return_val;*/
-
-	std::unique_ptr<char[]> temp(new char[number_of_value]{'\n'});
+std::string dataref::get_value_char_array(XPLMDataRef in_dataref, int start_index, int number_of_value)
+{
+	std::unique_ptr<char[]> temp(new char[number_of_value] {'\n'});
 	XPLMGetDatab(in_dataref, temp.get(), start_index, number_of_value);
 	return std::string(temp.get());
 }
 
-void dataref::init() {
+void dataref::init() 
+{
 	set_plugin_path();
 	get_data_list();
 	set_status(true);
