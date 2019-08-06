@@ -29,7 +29,7 @@ private:
 	void set_plugin_path();
 	std::vector<int> get_value_int_array(XPLMDataRef in_dataref, int start_index, int end_index);
 	std::vector<float> get_value_float_array(XPLMDataRef in_dataref, int start_index, int end_index);
-	std::vector<char> get_value_char_array(XPLMDataRef in_dataref, int start_index, int end_index);
+	std::string get_value_char_array(XPLMDataRef in_dataref, int start_index, int end_index);
 	std::vector<uint8_t> get_flexbuffers_data();
 	size_t get_flexbuffers_size();
 	std::string plugin_path_{};
