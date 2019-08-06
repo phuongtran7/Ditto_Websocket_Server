@@ -36,7 +36,6 @@ PLUGIN_API void XPluginDisable(void) {
 	server_instance.stop();
 	// Wait for io_service to cleanly exit
 	asio_thread.join();
-	//XPLMUnregisterFlightLoopCallback(listenCallback, nullptr);
 	XPLMDestroyFlightLoop(flight_loop_id);
 	XPLMDebugString("Disabling Ditto.\n");
 }
@@ -51,12 +50,10 @@ PLUGIN_API int  XPluginEnable(void) {
 			XPLMDebugString(e.what());
 			return 0;
 		}
-		//XPLMRegisterFlightLoopCallback(listenCallback, -1.0, nullptr);
 		XPLMCreateFlightLoop_t params = { sizeof(XPLMCreateFlightLoop_t), xplm_FlightLoop_Phase_AfterFlightModel, listenCallback, nullptr };
 		flight_loop_id = XPLMCreateFlightLoop(&params);
 		if (flight_loop_id != nullptr)
 		{
-			// schedule flight loop 
 			XPLMScheduleFlightLoop(flight_loop_id, -1, true);
 		}
 	}
