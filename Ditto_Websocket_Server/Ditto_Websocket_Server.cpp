@@ -6,6 +6,7 @@
 broadcast_server server_instance{};
 dataref new_data;
 websocketpp::lib::thread asio_thread;
+XPLMFlightLoopID flight_loop_id;
 
 static float	listenCallback(
 	float                inElapsedSinceLastCall,
@@ -22,9 +23,6 @@ PLUGIN_API int XPluginStart(
 	strcpy_s(outSig, 31, "phuong.x-plane.ditto.websocket");
 	strcpy_s(outDesc, 28, "Ditto with Websocket Server");
 
-	//Register to get callback every frame
-	XPLMRegisterFlightLoopCallback(listenCallback, -1.0, nullptr);
-
 	return 1;
 }
 
@@ -38,7 +36,8 @@ PLUGIN_API void XPluginDisable(void) {
 	server_instance.stop();
 	// Wait for io_service to cleanly exit
 	asio_thread.join();
-	XPLMUnregisterFlightLoopCallback(listenCallback, nullptr);
+	//XPLMUnregisterFlightLoopCallback(listenCallback, nullptr);
+	XPLMDestroyFlightLoop(flight_loop_id);
 	XPLMDebugString("Disabling Ditto.\n");
 }
 
@@ -52,7 +51,14 @@ PLUGIN_API int  XPluginEnable(void) {
 			XPLMDebugString(e.what());
 			return 0;
 		}
-		XPLMRegisterFlightLoopCallback(listenCallback, -1.0, nullptr);
+		//XPLMRegisterFlightLoopCallback(listenCallback, -1.0, nullptr);
+		XPLMCreateFlightLoop_t params = { sizeof(XPLMCreateFlightLoop_t), xplm_FlightLoop_Phase_AfterFlightModel, listenCallback, nullptr };
+		flight_loop_id = XPLMCreateFlightLoop(&params);
+		if (flight_loop_id != nullptr)
+		{
+			// schedule flight loop 
+			XPLMScheduleFlightLoop(flight_loop_id, -1, true);
+		}
 	}
 	XPLMDebugString("Enabling Ditto.\n");
 	return 1;

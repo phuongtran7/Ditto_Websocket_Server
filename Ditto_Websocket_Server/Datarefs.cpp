@@ -147,60 +147,43 @@ double dataref::get_value_double(XPLMDataRef in_dataref) {
 }
 
 std::vector<int> dataref::get_value_int_array(XPLMDataRef in_dataref, int start_index, int number_of_value) {
-	std::vector<int> return_val;
-	return_val.reserve(number_of_value);
+	/*std::vector<int> return_val;
 	for (auto i = 0; i <= number_of_value; ++i) {
 		int temp;
 		XPLMGetDatavi(in_dataref, &temp, start_index, 1);
 		return_val.emplace_back(temp);
 	}
-	return return_val;
-
-	/*int* temp = new int[number_of_value];
-	XPLMGetDatavi(in_dataref, temp, start_index, number_of_value);
-	std::vector<int> return_val;
-	for (auto i = 0; i < number_of_value; ++i) {
-		return_val.emplace_back(temp[i]);
-	}
-	delete[] temp;
 	return return_val;*/
+
+	std::shared_ptr<int[]> temp(new int[number_of_value]);
+	XPLMGetDatavi(in_dataref, temp.get(), start_index, number_of_value);
+	return std::vector<int>(temp.get(), temp.get() + number_of_value);
 }
 
 std::vector<float> dataref::get_value_float_array(XPLMDataRef in_dataref, int start_index, int number_of_value) {
-	std::vector<float> return_val;
-	return_val.reserve(number_of_value);
+	/*std::vector<float> return_val;
 	for (auto i = 0; i <= number_of_value; ++i) {
 		float temp;
 		XPLMGetDatavf(in_dataref, &temp, start_index, 1);
 		return_val.emplace_back(temp);
 	}
-	return return_val;
-
-	/*float* temp = new float[number_of_value];
-	XPLMGetDatavf(in_dataref, temp, start_index, number_of_value);
-	std::vector<float> return_val;
-	for (auto i = 0; i < number_of_value; ++i) {
-		return_val.emplace_back(temp[i]);
-	}
-	delete[] temp;
 	return return_val;*/
+
+	std::shared_ptr<float[]> temp(new float[number_of_value]);
+	XPLMGetDatavf(in_dataref, temp.get(), start_index, number_of_value);
+	return std::vector<float>(temp.get(), temp.get() + number_of_value);
 }
 
 std::string dataref::get_value_char_array(XPLMDataRef in_dataref, int start_index, int number_of_value) {
-	/*std::vector<char> return_val;
-	return_val.reserve(number_of_value);
-	for (auto i = 0; i <= number_of_value; ++i) {
-		char temp;
-		XPLMGetDatab(in_dataref, &temp, start_index, 1);
-		return_val.emplace_back(temp);
-	}
-	return return_val;*/
-
-	char* temp = new char[number_of_value + 1]{'\n'};
+	/*char* temp = new char[number_of_value + 1]{'\n'};
 	XPLMGetDatab(in_dataref, temp, start_index, number_of_value);
 	auto return_val = std::string(temp);
 	delete[] temp;
-	return return_val;
+	return return_val;*/
+
+	std::shared_ptr<char[]> temp(new char[number_of_value]);
+	XPLMGetDatab(in_dataref, temp.get(), start_index, number_of_value);
+	return std::string(temp.get());
 }
 
 void dataref::init() {
