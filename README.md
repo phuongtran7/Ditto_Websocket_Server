@@ -39,11 +39,11 @@ If you don't want to compile the plugin by yourself, you can head over the <a hr
 ## Code samples
 1. Example `Datarefs.toml` content:
 ```
-# Getting an float dataref
+# Getting a float dataref
 [[Data]] # Each dataref is an Data table
 name = "airspeed" # User specify name of the dataref, which will be used to access data later
 string = "sim/flightmodel/position/indicated_airspeed" # Dataref
-type = "float" # Type of the dataref. Can be "int", "float" and "char"
+type = "float" # Type of the dataref. Can be either "int", "float" or "char"
 
 # Getting a float array dataref
 [[Data]]
