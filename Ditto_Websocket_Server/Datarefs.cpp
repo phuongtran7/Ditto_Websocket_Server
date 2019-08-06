@@ -170,7 +170,7 @@ std::vector<float> dataref::get_value_float_array(XPLMDataRef in_dataref, int st
 
 std::string dataref::get_value_char_array(XPLMDataRef in_dataref, int start_index, int number_of_value)
 {
-	std::unique_ptr<char[]> temp(new char[number_of_value] {'\n'});
+	std::unique_ptr<char[]> temp(new char[number_of_value] {'\0'});
 	XPLMGetDatab(in_dataref, temp.get(), start_index, number_of_value);
 	return std::string(temp.get());
 }
