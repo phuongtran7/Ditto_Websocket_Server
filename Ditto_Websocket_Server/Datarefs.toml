@@ -1,36 +1,22 @@
-[[Endpoints]]
-address = "127.0.0.1"
-port = 6996
-name = "Pylon"
+# Getting a float dataref
+[[Data]] # Each dataref is an Data table
+name = "airspeed" # User specify name of the dataref, which will be used to access data later
+string = "sim/flightmodel/position/indicated_airspeed" # Dataref
+type = "float" # Type of the dataref. Can be either "int", "float" or "char"
 
+# Getting a float array dataref
 [[Data]]
-name = "Airspeed"
-string = "sim/flightmodel/position/indicated_airspeed"
+name = "fuel_flow"
+string = "sim/cockpit2/engine/indicators/fuel_flow_kg_sec"
 type = "float"
+# If "start_index" and "num_value" present in the table, that dataref will be treated as an array of value
+start_index = 0 # The start index of the array that Ditto should start reading from
+num_value = 2 # Number of value after the start_index Ditto should read.
 
+# Getting a string dataref
 [[Data]]
-name = "Latitude"
-string = "sim/flightmodel/position/latitude"
-type = "float"
-
-[[Data]]
-name = "Longitude"
-string = "sim/flightmodel/position/longitude"
-type = "float"
-
-[[Data]]
-name = "Altitude"
-string = "sim/cockpit2/gauges/indicators/altitude_ft_pilot"
-type = "float"
-
-[[Data]]
-name = "Heading"
-string = "sim/flightmodel/position/mag_psi"
-type = "float"
-
-[[Data]]
-name = "N2_Percent"
-string = "sim/cockpit2/engine/indicators/N2_percent"
-type = "float"
+name = "legs"
+string = "laminar/B738/fms/legs"
+type = "char"
 start_index = 0
-num_value = 1
+num_value = 512
