@@ -145,6 +145,7 @@
   <ItemGroup>
     <ClInclude Include="Datarefs.h" />
     <ClInclude Include="Schema_generated.h" />
+    <ClInclude Include="Utility.h" />
     <ClInclude Include="Websocket.h" />
   </ItemGroup>
   <ItemGroup>

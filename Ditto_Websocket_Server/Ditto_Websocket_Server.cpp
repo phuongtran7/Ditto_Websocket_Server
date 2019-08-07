@@ -1,7 +1,5 @@
 #include "Websocket.h"
 #include "Datarefs.h"
-#include "XPLMDataAccess.h"
-#include "XPLMProcessing.h"
 
 broadcast_server server_instance{};
 dataref new_data;

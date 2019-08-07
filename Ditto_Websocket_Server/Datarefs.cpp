@@ -176,22 +176,12 @@ std::string dataref::get_value_char_array(XPLMDataRef in_dataref, int start_inde
 
 void dataref::init() 
 {
-	set_plugin_path();
+	set_plugin_path(get_plugin_path());
 	get_data_list();
 	set_status(true);
 }
 
-void dataref::set_plugin_path()
+void dataref::set_plugin_path(std::string path)
 {
-	const auto my_id = XPLMFindPluginBySignature("phuong.x-plane.ditto.websocket");;
-	char buffer[1024]{};
-	XPLMGetPluginInfo(my_id, nullptr, buffer, nullptr, nullptr);
-	auto return_string = std::string(buffer);
-	auto pos = return_string.find(R"(64\win.xpl)");
-	if (pos != std::string::npos)
-	{
-		// XPLMGetPluginInfo return absolute path to win.xpl file so it need to be trimmed off the string
-		return_string.erase(pos, return_string.length()); // Trim "64\win.xpl"
-	}
-	plugin_path_ = return_string;
+	plugin_path_ = path;
 }

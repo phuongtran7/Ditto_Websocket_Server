@@ -68,3 +68,8 @@ void broadcast_server::on_close(websocketpp::connection_hdl hdl) {
 
 void broadcast_server::on_message(websocketpp::connection_hdl hdl, server::message_ptr msg) {
 }
+
+void broadcast_server::set_plugin_path(std::string path)
+{
+	plugin_path_ = path;
+}
