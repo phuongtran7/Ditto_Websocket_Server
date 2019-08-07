@@ -21,9 +21,8 @@ If you don't want to compile the plugin by yourself, you can head over the <a hr
 ### Start up
 1. Copy the compiled Ditto into plugin folder in X-Plane.
 2. Copy `Datarefs.toml` file into Ditto folder. For example, `path_to_aircraft/plugins/Ditto/`.
-3. Define all the endpoints that the data should be sent to.
-4. Define all the datarefs that the plugin should send the value out.
-5. Start X-Plane.
+3. Define all the datarefs that the plugin should send the value out.
+4. Start X-Plane.
 
 ### Modifying datarefs/endpoints
 1. Disable Ditto by using Plugin Manager in X-Plane.
