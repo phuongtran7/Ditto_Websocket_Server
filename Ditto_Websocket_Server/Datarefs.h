@@ -23,6 +23,8 @@ private:
 	std::vector<dataref_info> not_found_list_;
 	std::vector<dataref_info> get_list();
 	bool get_data_list();
+	int retry_limit{};
+	int retry_num{};
 	int get_value_int(XPLMDataRef in_dataref);
 	float get_value_float(XPLMDataRef in_dataref);
 	double get_value_double(XPLMDataRef in_dataref);
@@ -31,6 +33,7 @@ private:
 	std::string get_value_char_array(XPLMDataRef in_dataref, int start_index, int end_index);
 	std::vector<uint8_t> get_flexbuffers_data();
 	size_t get_flexbuffers_size();
+	void set_retry_limit();
 	flexbuffers::Builder flexbuffers_builder_;
 	flatbuffers::FlatBufferBuilder flatbuffers_builder_;
 	bool status_{};

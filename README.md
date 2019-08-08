@@ -40,6 +40,9 @@ If you don't want to compile the plugin by yourself, you can head over the <a hr
 # Setting port number
 port = 8800
 
+# Setting the maximum number of retry. Zero to disable retry.
+retry_limit = 5 // Retry 5 times. Each time after 5 seconds
+
 # Getting a float dataref
 [[Data]] # Each dataref is an Data table
 name = "airspeed" # User specify name of the dataref, which will be used to access data later
@@ -57,11 +60,24 @@ num_value = 2 # Number of value after the start_index Ditto should read.
 
 # Getting a string dataref
 [[Data]]
-name = "legs"
+name = "legs_full"
 string = "laminar/B738/fms/legs"
 type = "char"
-start_index = 0
-num_value = 512
+
+# Getting a string dataref with an offset
+[[Data]]
+name = "legs_offset"
+string = "laminar/B738/fms/legs"
+type = "char"
+start_index = 2
+
+# Getting part of string dataref
+[[Data]]
+name = "legs_part"
+string = "laminar/B738/fms/legs"
+type = "char"
+start_index = 2
+num_value = 10
 ```
 
 2. Receiving data using `websocketpp`

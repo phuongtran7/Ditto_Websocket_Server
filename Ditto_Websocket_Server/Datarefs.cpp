@@ -111,6 +111,21 @@ size_t dataref::get_flexbuffers_size()
 	return flexbuffers_builder_.GetSize();
 }
 
+void dataref::set_retry_limit()
+{
+	try
+	{
+		const auto input_file = cpptoml::parse_file(get_plugin_path() + "Datarefs.toml");
+		retry_limit = input_file->get_as<int>("retry_limit").value_or(0);
+		retry_num = 1;
+	}
+	catch (const cpptoml::parse_exception& ex)
+	{
+		XPLMDebugString(ex.what());
+		XPLMDebugString("\n");
+	}
+}
+
 void dataref::retry_dataref() {
 	// Try and get access to not_found_list_ and dataref_list_
 	std::lock_guard<std::mutex> guard(data_lock);
@@ -118,11 +133,10 @@ void dataref::retry_dataref() {
 	// TO DO: add a flag in Dataref.toml to mark a dataref that will be created by another plugin later
 	// so that Ditto can search for it later after the plane loaded.
 	// XPLMFindDataRef is rather expensive so avoid using this
-	if (!not_found_list_.empty()) {
+	if (!not_found_list_.empty() && retry_num  <= retry_limit) {
 		XPLMDebugString(("Cannot find " + std::to_string(not_found_list_.size()) + " dataref. Retrying.\n").c_str());
 		for (auto it = not_found_list_.begin(); it != not_found_list_.end(); ++it) {
-			std::string s;
-			s += "Retrying " + it->dataref_name + "\n";
+			std::string s = "Retrying " + it->dataref_name + "\n";
 			XPLMDebugString(s.c_str());
 			it->dataref = XPLMFindDataRef(it->dataref_name.c_str());
 			if (it->dataref != nullptr) {
@@ -132,6 +146,7 @@ void dataref::retry_dataref() {
 				dataref_list_.emplace_back(*it);
 			}
 		}
+		retry_num++;
 	}
 }
 
@@ -259,6 +274,7 @@ std::string dataref::get_value_char_array(XPLMDataRef in_dataref, int start_inde
 bool dataref::init()
 {
 	if (get_data_list()) {
+		set_retry_limit();
 		set_status(true);
 		return true;
 	}
