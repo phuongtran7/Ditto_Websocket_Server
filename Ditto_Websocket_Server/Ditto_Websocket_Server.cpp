@@ -41,17 +41,16 @@ PLUGIN_API void XPluginDisable(void) {
 	XPLMDebugString("Disabling Ditto.\n");
 }
 
-PLUGIN_API int  XPluginEnable(void) {
+PLUGIN_API int XPluginEnable(void) {
 	if (!new_data.get_status()) {
 		try {
 			asio_thread = websocketpp::lib::thread(&broadcast_server::run, &server_instance);
 			new_data.init();
-
 			if (new_data.get_not_found_list_size() != 0) {
 				// Register a new flight loop to retry finding datarefs
-				XPLMCreateFlightLoop_t params = { sizeof(XPLMCreateFlightLoop_t), xplm_FlightLoop_Phase_AfterFlightModel,  retry_callback, nullptr };
-				data_flight_loop_id = XPLMCreateFlightLoop(&params);
-				if (data_flight_loop_id != nullptr)
+				XPLMCreateFlightLoop_t params = { sizeof(XPLMCreateFlightLoop_t), xplm_FlightLoop_Phase_AfterFlightModel, retry_callback, nullptr };
+				retry_flight_loop_id = XPLMCreateFlightLoop(&params);
+				if (retry_flight_loop_id != nullptr)
 				{
 					XPLMScheduleFlightLoop(retry_flight_loop_id, -1, true);
 				}
@@ -61,6 +60,7 @@ PLUGIN_API int  XPluginEnable(void) {
 			XPLMDebugString(e.what());
 			return 0;
 		}
+
 		XPLMCreateFlightLoop_t params = { sizeof(XPLMCreateFlightLoop_t), xplm_FlightLoop_Phase_AfterFlightModel, data_callback, nullptr };
 		data_flight_loop_id = XPLMCreateFlightLoop(&params);
 		if (data_flight_loop_id == nullptr)
@@ -107,6 +107,7 @@ float retry_callback(float inElapsedSinceLastCall,
 		return -1.0;
 	}
 	else {
-		return 0;
+		// No more uninitialized dataref to process
+		return 0.0;
 	}
 }

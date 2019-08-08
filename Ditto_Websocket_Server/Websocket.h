@@ -2,7 +2,9 @@
 #include <websocketpp/config/asio_no_tls.hpp>
 #include <websocketpp/server.hpp>
 #include <websocketpp/common/thread.hpp>
+#include <optional>
 #include <set>
+#include "Utility.h"
 
 typedef websocketpp::server<websocketpp::config::asio> server;
 
@@ -12,6 +14,7 @@ public:
 	void run();
 	void send(uint8_t* send_buf, size_t size);
 	void stop();
+	int get_port_number();
 private:
 	std::string plugin_path_{};
 	int port_number_{};

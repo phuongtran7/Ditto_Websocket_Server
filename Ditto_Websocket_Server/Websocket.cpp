@@ -22,14 +22,20 @@ void broadcast_server::stop() {
 	}
 }
 
+int broadcast_server::get_port_number()
+{
+	const auto input_file = cpptoml::parse_file(plugin_path_ + "Datarefs.toml");
+	return input_file->get_as<int>("port").value_or(1234);
+}
+
 void broadcast_server::run() {
 
 	if (m_server.stopped()) {
 		m_server.reset();
 	}
 
-	// listen on specified port
-	m_server.listen(1234);
+	// Listen on user defined port or will default to 1234 if port config not found
+	m_server.listen(get_port_number());
 
 	// Start the server accept loop
 	m_server.start_accept();

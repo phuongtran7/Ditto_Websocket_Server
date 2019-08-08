@@ -1,6 +1,5 @@
 #pragma once
 #include "Utility.h"
-#include <cpptoml.h>
 #include <vector>
 #include <deque>
 #include <optional>

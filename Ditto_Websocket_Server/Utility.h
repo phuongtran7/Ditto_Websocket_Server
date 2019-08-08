@@ -6,6 +6,10 @@
 #include "XPLMDataAccess.h"
 #include "XPLMPlanes.h"
 #include <string>
+#include <cpptoml.h>
+
+// The user’s aircraft is always index 0.
+#define XPLM_USER_AIRCRAFT 0
 
 struct aircraft_info 
 {
@@ -33,7 +37,7 @@ aircraft_info get_loaded_aircraft()
 {
 	std::vector<char> name_buffer(256);
 	std::vector<char> path_buffer(512);
-	XPLMGetNthAircraftModel(0, name_buffer.data(), path_buffer.data());
+	XPLMGetNthAircraftModel(XPLM_USER_AIRCRAFT, name_buffer.data(), path_buffer.data());
 
 	return aircraft_info{ name_buffer.data(), path_buffer.data() };
 }
