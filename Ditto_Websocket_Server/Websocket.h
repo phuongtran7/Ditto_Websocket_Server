@@ -16,7 +16,6 @@ public:
 	void stop();
 	int get_port_number();
 private:
-	std::string plugin_path_{};
 	int port_number_{};
 	server m_server;
 	std::set<websocketpp::connection_hdl, std::owner_less<websocketpp::connection_hdl>> m_connections;
@@ -24,5 +23,4 @@ private:
 	void on_open(websocketpp::connection_hdl hdl);
 	void on_close(websocketpp::connection_hdl hdl);
 	void on_message(websocketpp::connection_hdl hdl, server::message_ptr msg);
-	void set_plugin_path(std::string path);
 };

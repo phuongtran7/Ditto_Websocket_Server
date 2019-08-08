@@ -3,7 +3,6 @@
 std::string get_plugin_path()
 {
 	const auto my_id = XPLMFindPluginBySignature("phuong.x-plane.ditto.websocket");
-	//char buffer[1024]{};
 	std::vector<char> buffer(1024);
 	XPLMGetPluginInfo(my_id, nullptr, buffer.data(), nullptr, nullptr);
 	auto return_string = std::string(buffer.data());
@@ -19,8 +18,17 @@ std::string get_plugin_path()
 aircraft_info get_loaded_aircraft()
 {
 	std::vector<char> name_buffer(256);
-	std::vector<char> path_buffer(512);
+	std::vector<char> path_buffer(1024);
 	XPLMGetNthAircraftModel(XPLM_USER_AIRCRAFT, name_buffer.data(), path_buffer.data());
-
 	return aircraft_info{ name_buffer.data(), path_buffer.data() };
+}
+
+std::string get_config_path() {
+	auto loaded_aircraft = get_loaded_aircraft();
+	auto pos = loaded_aircraft.aircraft_path.find(loaded_aircraft.aircraft_name);
+	if (pos != std::string::npos)
+	{
+		loaded_aircraft.aircraft_path.erase(pos, loaded_aircraft.aircraft_name.length());
+	}
+	return loaded_aircraft.aircraft_path;
 }

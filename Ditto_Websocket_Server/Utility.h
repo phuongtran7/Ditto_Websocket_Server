@@ -19,3 +19,4 @@ struct aircraft_info
 
 std::string get_plugin_path();
 aircraft_info get_loaded_aircraft();
+std::string get_config_path();

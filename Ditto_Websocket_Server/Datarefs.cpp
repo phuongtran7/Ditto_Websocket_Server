@@ -22,6 +22,7 @@ void dataref::empty_list()
 	// Try and get access to dataref_list_
 	std::lock_guard<std::mutex> guard(data_lock);
 	dataref_list_.clear();
+	not_found_list_.clear();
 	reset_builder();
 	set_status(false);
 }
@@ -118,7 +119,13 @@ void dataref::retry_dataref() {
 	// so that Ditto can search for it later after the plane loaded.
 	// XPLMFindDataRef is rather expensive so avoid using this
 	if (!not_found_list_.empty()) {
+		XPLMDebugString(("Cannot find " + std::to_string(not_found_list_.size()) + " dataref. Retrying.\n").c_str());
 		for (auto it = not_found_list_.begin(); it != not_found_list_.end(); ++it) {
+			std::string s;
+			s += "Retrying ";
+			s += it->dataref_name;
+			s += "\n";
+			XPLMDebugString(s.c_str());
 			it->dataref = XPLMFindDataRef(it->dataref_name.c_str());
 			if (it->dataref != nullptr) {
 				// Remove the newly found dataref from the not found list
@@ -134,16 +141,16 @@ void dataref::get_data_list()
 {
 	try
 	{
-		const auto input_file = cpptoml::parse_file(plugin_path_ + "Datarefs.toml");
+		const auto input_file = cpptoml::parse_file(get_config_path() + "Datarefs.toml");
 		// Create a list of all the Data table in the toml file
 		const auto data_list = input_file->get_table_array("Data");
 
 		// Loop through all the tables
 		for (const auto& table : *data_list)
 		{
-			auto temp_name = table->get_as<std::string>("string").value_or("").c_str();
+			auto temp_name = table->get_as<std::string>("string").value_or("");
 
-			XPLMDataRef new_dataref = XPLMFindDataRef(temp_name);
+			XPLMDataRef new_dataref = XPLMFindDataRef(temp_name.c_str());
 
 			auto start = table->get_as<int>("start_index").value_or(-1);
 			auto num = table->get_as<int>("num_value").value_or(-1);
@@ -163,12 +170,12 @@ void dataref::get_data_list()
 				temp_dataref_info.num_value = std::nullopt;
 			}
 
-			if (new_dataref != nullptr) {
-				dataref_list_.emplace_back(temp_dataref_info);
-			}
-			else {
+			if (temp_dataref_info.dataref == NULL) {
 				// Push to not found list to retry at later time
 				not_found_list_.emplace_back(temp_dataref_info);
+			}
+			else {
+				dataref_list_.emplace_back(temp_dataref_info);
 			}
 		}
 	}
@@ -216,12 +223,6 @@ std::string dataref::get_value_char_array(XPLMDataRef in_dataref, int start_inde
 
 void dataref::init()
 {
-	set_plugin_path(get_plugin_path());
 	get_data_list();
 	set_status(true);
-}
-
-void dataref::set_plugin_path(std::string path)
-{
-	plugin_path_ = path;
 }

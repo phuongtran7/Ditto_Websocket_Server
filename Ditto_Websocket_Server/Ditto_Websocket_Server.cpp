@@ -81,6 +81,12 @@ PLUGIN_API int XPluginEnable(void) {
 			XPLMScheduleFlightLoop(data_flight_loop_id, -1, true);
 		}
 	}
+
+
+	auto temp = get_loaded_aircraft();
+	XPLMDebugString(("Load aircraft name: " +  temp.aircraft_name + "\n").c_str());
+	XPLMDebugString(("Load aircraft path: " + temp.aircraft_path + "\n").c_str());
+
 	XPLMDebugString("Enabling Ditto.\n");
 	return 1;
 }
@@ -113,7 +119,7 @@ float retry_callback(float inElapsedSinceLastCall,
 {
 	if (new_data.get_not_found_list_size() != 0) {
 		new_data.retry_dataref();
-		return -1.0;
+		return 5.0; // Retry after every 5 seconds.
 	}
 	else {
 		// No more uninitialized dataref to process

@@ -24,7 +24,7 @@ void broadcast_server::stop() {
 
 int broadcast_server::get_port_number()
 {
-	const auto input_file = cpptoml::parse_file(plugin_path_ + "Datarefs.toml");
+	const auto input_file = cpptoml::parse_file(get_config_path() + "Datarefs.toml");
 	return input_file->get_as<int>("port").value_or(1234);
 }
 
@@ -73,9 +73,4 @@ void broadcast_server::on_close(websocketpp::connection_hdl hdl) {
 }
 
 void broadcast_server::on_message(websocketpp::connection_hdl hdl, server::message_ptr msg) {
-}
-
-void broadcast_server::set_plugin_path(std::string path)
-{
-	plugin_path_ = path;
 }
