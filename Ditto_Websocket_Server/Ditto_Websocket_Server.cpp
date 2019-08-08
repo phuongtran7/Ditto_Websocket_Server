@@ -44,6 +44,9 @@ PLUGIN_API void XPluginDisable(void) {
 	if (data_flight_loop_id != nullptr) {
 		XPLMDestroyFlightLoop(data_flight_loop_id);
 	}
+	if (retry_flight_loop_id != nullptr) {
+		XPLMDestroyFlightLoop(retry_flight_loop_id);
+	}
 	XPLMDebugString("Disabling Ditto.\n");
 }
 

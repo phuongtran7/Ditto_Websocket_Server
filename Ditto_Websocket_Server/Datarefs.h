@@ -6,6 +6,7 @@
 #include "flatbuffers/flexbuffers.h"
 #include "Schema_generated.h"
 #include "Utility.h"
+#include <mutex>
 
 class dataref {
 private:
@@ -17,7 +18,7 @@ private:
 		std::optional<int> start_index{};
 		std::optional<int> num_value{}; // Number of values in the array to get; starts at start_index
 	};
-
+	std::mutex data_lock;
 	std::vector<dataref_info> dataref_list_;
 	std::vector<dataref_info> not_found_list_;
 	std::vector<dataref_info> get_list();

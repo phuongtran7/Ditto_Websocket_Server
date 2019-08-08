@@ -20,7 +20,6 @@ private:
 	int port_number_{};
 	server m_server;
 	std::set<websocketpp::connection_hdl, std::owner_less<websocketpp::connection_hdl>> m_connections;
-	websocketpp::lib::mutex m_action_lock;
 	websocketpp::lib::mutex m_connection_lock;
 	void on_open(websocketpp::connection_hdl hdl);
 	void on_close(websocketpp::connection_hdl hdl);

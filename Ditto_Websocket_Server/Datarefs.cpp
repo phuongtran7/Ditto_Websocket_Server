@@ -19,6 +19,8 @@ void dataref::reset_builder()
 // Remove all the dataref in the dataref list
 void dataref::empty_list()
 {
+	// Try and get access to dataref_list_
+	std::lock_guard<std::mutex> guard(data_lock);
 	dataref_list_.clear();
 	reset_builder();
 	set_status(false);
@@ -46,6 +48,9 @@ size_t dataref::get_serialized_size()
 
 std::vector<uint8_t> dataref::get_flexbuffers_data()
 {
+	// Try and get access to dataref_list_
+	std::lock_guard<std::mutex> guard(data_lock);
+
 	const auto map_start = flexbuffers_builder_.StartMap();
 
 	for (auto& dataref : dataref_list_) {
@@ -110,12 +115,15 @@ void dataref::retry_dataref() {
 	// so that Ditto can search for it later after the plane loaded.
 	// XPLMFindDataRef is rather expensive so avoid using this
 	if (!not_found_list_.empty()) {
+		// Try and get access to not_found_list_ and dataref_list_
+		std::lock_guard<std::mutex> guard(data_lock);
 		for (auto it = not_found_list_.begin(); it != not_found_list_.end(); ++it) {
 			it->dataref = XPLMFindDataRef(it->dataref_name.c_str());
-
 			if (it->dataref != nullptr) {
 				// Remove the newly found dataref from the not found list
 				not_found_list_.erase(it);
+				// Add it to dataref_list_
+				dataref_list_.emplace_back(*it);
 			}
 		}
 	}
