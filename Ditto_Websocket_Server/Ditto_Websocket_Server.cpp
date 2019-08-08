@@ -52,9 +52,7 @@ PLUGIN_API void XPluginDisable(void) {
 
 PLUGIN_API int XPluginEnable(void) {
 	if (!new_data.get_status()) {
-		try {
-			asio_thread = websocketpp::lib::thread(&broadcast_server::run, &server_instance);
-			new_data.init();
+		if (new_data.init()) {
 			if (new_data.get_not_found_list_size() != 0) {
 				// Register a new flight loop to retry finding datarefs
 				XPLMCreateFlightLoop_t params = { sizeof(XPLMCreateFlightLoop_t), xplm_FlightLoop_Phase_AfterFlightModel, retry_callback, nullptr };
@@ -64,28 +62,30 @@ PLUGIN_API int XPluginEnable(void) {
 					XPLMScheduleFlightLoop(retry_flight_loop_id, 5, true);
 				}
 			}
-		}
-		catch (websocketpp::exception const& e) {
-			XPLMDebugString(e.what());
-			return 0;
-		}
+			try {
+				asio_thread = websocketpp::lib::thread(&broadcast_server::run, &server_instance);
+			}
+			catch (websocketpp::exception const& e) {
+				XPLMDebugString(e.what());
+				return 0;
+			}
 
-		XPLMCreateFlightLoop_t params = { sizeof(XPLMCreateFlightLoop_t), xplm_FlightLoop_Phase_AfterFlightModel, data_callback, nullptr };
-		data_flight_loop_id = XPLMCreateFlightLoop(&params);
-		if (data_flight_loop_id == nullptr)
-		{
-			XPLMDebugString("Cannot create flight loop. Exiting Ditto.\n");
-			return 0;
+			XPLMCreateFlightLoop_t params = { sizeof(XPLMCreateFlightLoop_t), xplm_FlightLoop_Phase_AfterFlightModel, data_callback, nullptr };
+			data_flight_loop_id = XPLMCreateFlightLoop(&params);
+			if (data_flight_loop_id == nullptr)
+			{
+				XPLMDebugString("Cannot create flight loop. Exiting Ditto.\n");
+				return 0;
+			}
+			else {
+				XPLMScheduleFlightLoop(data_flight_loop_id, -1, true);
+			}
 		}
 		else {
-			XPLMScheduleFlightLoop(data_flight_loop_id, -1, true);
+			XPLMDebugString("Cannot find \"Datarefs.toml\". Exiting.\n");
+			return 0;
 		}
 	}
-
-
-	auto temp = get_loaded_aircraft();
-	XPLMDebugString(("Load aircraft name: " +  temp.aircraft_name + "\n").c_str());
-	XPLMDebugString(("Load aircraft path: " + temp.aircraft_path + "\n").c_str());
 
 	XPLMDebugString("Enabling Ditto.\n");
 	return 1;

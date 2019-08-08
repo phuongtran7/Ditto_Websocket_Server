@@ -24,7 +24,7 @@ void broadcast_server::stop() {
 
 int broadcast_server::get_port_number()
 {
-	const auto input_file = cpptoml::parse_file(get_config_path() + "Datarefs.toml");
+	const auto input_file = cpptoml::parse_file(get_plugin_path() + "Datarefs.toml");
 	return input_file->get_as<int>("port").value_or(1234);
 }
 

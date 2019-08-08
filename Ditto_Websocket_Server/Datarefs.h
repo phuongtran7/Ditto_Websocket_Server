@@ -22,7 +22,7 @@ private:
 	std::vector<dataref_info> dataref_list_;
 	std::vector<dataref_info> not_found_list_;
 	std::vector<dataref_info> get_list();
-	void get_data_list();
+	bool get_data_list();
 	int get_value_int(XPLMDataRef in_dataref);
 	float get_value_float(XPLMDataRef in_dataref);
 	double get_value_double(XPLMDataRef in_dataref);
@@ -43,5 +43,5 @@ public:
 	bool get_status();
 	void empty_list();
 	void reset_builder();
-	void init();
+	bool init();
 };

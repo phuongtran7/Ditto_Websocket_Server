@@ -19,8 +19,8 @@ If you don't want to compile the plugin by yourself, you can head over the <a hr
 
 ## Usage
 ### Start up
-1. Copy the compiled Ditto into main plugin folder in X-Plane.
-2. Copy `Datarefs.toml` file into aircraft folder. For example, `X_Plane root/Aircraft/Laminar Research/Boeing B737-800/`.
+1. Copy the compiled Ditto into aircraft plugin folder in X-Plane. For example, `X_Plane root/Aircraft/Laminar Research/Boeing B737-800/plugins/`.
+2. Copy `Datarefs.toml` file into Ditto folder. For example, `X_Plane root/Aircraft/Laminar Research/Boeing B737-800/plugins/Ditto/`. 
 3. Define port number that Ditto will listen on. If `port` is not defined, Ditto will use default `1234` port.
 4. Define all the datarefs that the plugin should send the value out. Ditto has the ability to retry finding the dataref if that dataref is created by another plugin that loaded after Ditto. However, looking for dataref is a rather exenpsive task, so Ditto only retrying after every 5 seconds. One way to work around that is making Ditto load last by renaming the Ditto plugin folder, for example `zDitto` and copy it into aircraft folder. This way Ditto will be loaded last, after other plugins finish publishing datarefs.
 5. Start X-Plane.
@@ -37,6 +37,9 @@ If you don't want to compile the plugin by yourself, you can head over the <a hr
 ## Code samples
 1. Example `Datarefs.toml` content:
 ```
+# Setting port number
+port = 8800
+
 # Getting a float dataref
 [[Data]] # Each dataref is an Data table
 name = "airspeed" # User specify name of the dataref, which will be used to access data later

@@ -122,9 +122,7 @@ void dataref::retry_dataref() {
 		XPLMDebugString(("Cannot find " + std::to_string(not_found_list_.size()) + " dataref. Retrying.\n").c_str());
 		for (auto it = not_found_list_.begin(); it != not_found_list_.end(); ++it) {
 			std::string s;
-			s += "Retrying ";
-			s += it->dataref_name;
-			s += "\n";
+			s += "Retrying " + it->dataref_name + "\n";
 			XPLMDebugString(s.c_str());
 			it->dataref = XPLMFindDataRef(it->dataref_name.c_str());
 			if (it->dataref != nullptr) {
@@ -137,11 +135,11 @@ void dataref::retry_dataref() {
 	}
 }
 
-void dataref::get_data_list()
+bool dataref::get_data_list()
 {
 	try
 	{
-		const auto input_file = cpptoml::parse_file(get_config_path() + "Datarefs.toml");
+		const auto input_file = cpptoml::parse_file(get_plugin_path() + "Datarefs.toml");
 		// Create a list of all the Data table in the toml file
 		const auto data_list = input_file->get_table_array("Data");
 
@@ -178,10 +176,13 @@ void dataref::get_data_list()
 				dataref_list_.emplace_back(temp_dataref_info);
 			}
 		}
+		return true;
 	}
 	catch (const cpptoml::parse_exception& ex)
 	{
 		XPLMDebugString(ex.what());
+		XPLMDebugString("\n");
+		return false;
 	}
 }
 
@@ -221,8 +222,11 @@ std::string dataref::get_value_char_array(XPLMDataRef in_dataref, int start_inde
 	return std::string(temp.get());
 }
 
-void dataref::init()
+bool dataref::init()
 {
-	get_data_list();
-	set_status(true);
+	if (get_data_list()) {
+		set_status(true);
+		return true;
+	}
+	return false;
 }
