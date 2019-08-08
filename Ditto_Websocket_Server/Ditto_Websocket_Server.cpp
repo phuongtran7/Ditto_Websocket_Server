@@ -4,9 +4,10 @@
 broadcast_server server_instance{};
 dataref new_data;
 websocketpp::lib::thread asio_thread;
-XPLMFlightLoopID flight_loop_id{};
+XPLMFlightLoopID data_flight_loop_id{};
+XPLMFlightLoopID retry_flight_loop_id{};
 
-static float	listenCallback(
+static float	data_callback(
 	float                inElapsedSinceLastCall,
 	float                inElapsedTimeSinceLastFlightLoop,
 	int                  inCounter,
@@ -34,8 +35,8 @@ PLUGIN_API void XPluginDisable(void) {
 	server_instance.stop();
 	// Wait for io_service to cleanly exit
 	asio_thread.join();
-	if (flight_loop_id != nullptr) {
-		XPLMDestroyFlightLoop(flight_loop_id);
+	if (data_flight_loop_id != nullptr) {
+		XPLMDestroyFlightLoop(data_flight_loop_id);
 	}
 	XPLMDebugString("Disabling Ditto.\n");
 }
@@ -45,20 +46,30 @@ PLUGIN_API int  XPluginEnable(void) {
 		try {
 			asio_thread = websocketpp::lib::thread(&broadcast_server::run, &server_instance);
 			new_data.init();
+
+			if (new_data.get_not_found_list_size() != 0) {
+				// Register a new flight loop to retry finding datarefs
+				XPLMCreateFlightLoop_t params = { sizeof(XPLMCreateFlightLoop_t), xplm_FlightLoop_Phase_AfterFlightModel,  retry_callback, nullptr };
+				data_flight_loop_id = XPLMCreateFlightLoop(&params);
+				if (data_flight_loop_id != nullptr)
+				{
+					XPLMScheduleFlightLoop(retry_flight_loop_id, -1, true);
+				}
+			}
 		}
 		catch (websocketpp::exception const& e) {
 			XPLMDebugString(e.what());
 			return 0;
 		}
-		XPLMCreateFlightLoop_t params = { sizeof(XPLMCreateFlightLoop_t), xplm_FlightLoop_Phase_AfterFlightModel, listenCallback, nullptr };
-		flight_loop_id = XPLMCreateFlightLoop(&params);
-		if (flight_loop_id == nullptr)
+		XPLMCreateFlightLoop_t params = { sizeof(XPLMCreateFlightLoop_t), xplm_FlightLoop_Phase_AfterFlightModel, data_callback, nullptr };
+		data_flight_loop_id = XPLMCreateFlightLoop(&params);
+		if (data_flight_loop_id == nullptr)
 		{
 			XPLMDebugString("Cannot create flight loop. Exiting Ditto.\n");
 			return 0;
 		}
 		else {
-			XPLMScheduleFlightLoop(flight_loop_id, -1, true);
+			XPLMScheduleFlightLoop(data_flight_loop_id, -1, true);
 		}
 	}
 	XPLMDebugString("Enabling Ditto.\n");
@@ -67,7 +78,7 @@ PLUGIN_API int  XPluginEnable(void) {
 
 PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, int inMsg, void* inParam) { }
 
-float listenCallback(float inElapsedSinceLastCall,
+float data_callback(float inElapsedSinceLastCall,
 	float inElapsedTimeSinceLastFlightLoop,
 	int inCounter,
 	void* inRefcon)
@@ -84,4 +95,18 @@ float listenCallback(float inElapsedSinceLastCall,
 	}
 	new_data.reset_builder();
 	return -1.0;
+}
+
+float retry_callback(float inElapsedSinceLastCall,
+	float inElapsedTimeSinceLastFlightLoop,
+	int inCounter,
+	void* inRefcon)
+{
+	if (new_data.get_not_found_list_size() != 0) {
+		new_data.retry_dataref();
+		return -1.0;
+	}
+	else {
+		return 0;
+	}
 }

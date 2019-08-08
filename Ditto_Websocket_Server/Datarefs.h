@@ -2,6 +2,7 @@
 #include "Utility.h"
 #include <cpptoml.h>
 #include <vector>
+#include <deque>
 #include <optional>
 #include "flatbuffers/flatbuffers.h"
 #include "flatbuffers/flexbuffers.h"
@@ -10,7 +11,8 @@
 class dataref {
 private:
 	struct dataref_info {
-		std::string name{};
+		std::string dataref_name{}; // Name if dataref, i.e "sim/cockpit/" something
+		std::string name{}; // Name user defined for the dataref
 		XPLMDataRef dataref{};
 		std::string type{};
 		std::optional<int> start_index{};
@@ -18,6 +20,7 @@ private:
 	};
 
 	std::vector<dataref_info> dataref_list_;
+	std::vector<dataref_info> not_found_list_;
 	std::vector<dataref_info> get_list();
 	void get_data_list();
 	int get_value_int(XPLMDataRef in_dataref);
@@ -36,6 +39,8 @@ private:
 public:
 	uint8_t* get_serialized_data();
 	size_t get_serialized_size();
+	size_t get_not_found_list_size();
+	void retry_dataref();
 	void set_status(bool in_status);
 	bool get_status();
 	void empty_list();

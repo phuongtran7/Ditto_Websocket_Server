@@ -5,14 +5,19 @@ std::vector<dataref::dataref_info> dataref::get_list()
 	return dataref_list_;
 }
 
-void dataref::reset_builder() 
+size_t dataref::get_not_found_list_size()
+{
+	return not_found_list_.size();
+}
+
+void dataref::reset_builder()
 {
 	flexbuffers_builder_.Clear();
 	flatbuffers_builder_.Clear();
 }
 
 // Remove all the dataref in the dataref list
-void dataref::empty_list() 
+void dataref::empty_list()
 {
 	dataref_list_.clear();
 	reset_builder();
@@ -39,7 +44,7 @@ size_t dataref::get_serialized_size()
 	return flatbuffers_builder_.GetSize();
 }
 
-std::vector<uint8_t> dataref::get_flexbuffers_data() 
+std::vector<uint8_t> dataref::get_flexbuffers_data()
 {
 	const auto map_start = flexbuffers_builder_.StartMap();
 
@@ -85,19 +90,35 @@ std::vector<uint8_t> dataref::get_flexbuffers_data()
 	return flexbuffers_builder_.GetBuffer();
 }
 
-bool dataref::get_status() 
+bool dataref::get_status()
 {
 	return status_;
 }
 
-void dataref::set_status(bool in_status) 
+void dataref::set_status(bool in_status)
 {
 	status_ = in_status;
 }
 
-size_t dataref::get_flexbuffers_size() 
+size_t dataref::get_flexbuffers_size()
 {
 	return flexbuffers_builder_.GetSize();
+}
+
+void dataref::retry_dataref() {
+	// TO DO: add a flag in Dataref.toml to mark a dataref that will be created by another plugin later
+	// so that Ditto can search for it later after the plane loaded.
+	// XPLMFindDataRef is rather expensive so avoid using this
+	if (!not_found_list_.empty()) {
+		for (auto it = not_found_list_.begin(); it != not_found_list_.end(); ++it) {
+			it->dataref = XPLMFindDataRef(it->dataref_name.c_str());
+
+			if (it->dataref != nullptr) {
+				// Remove the newly found dataref from the not found list
+				not_found_list_.erase(it);
+			}
+		}
+	}
 }
 
 void dataref::get_data_list()
@@ -111,12 +132,15 @@ void dataref::get_data_list()
 		// Loop through all the tables
 		for (const auto& table : *data_list)
 		{
-			XPLMDataRef new_dataref = XPLMFindDataRef(table->get_as<std::string>("string").value_or("").c_str());
+			auto temp_name = table->get_as<std::string>("string").value_or("").c_str();
+
+			XPLMDataRef new_dataref = XPLMFindDataRef(temp_name);
 
 			auto start = table->get_as<int>("start_index").value_or(-1);
 			auto num = table->get_as<int>("num_value").value_or(-1);
 			dataref_info temp_dataref_info;
 
+			temp_dataref_info.dataref_name = temp_name;
 			temp_dataref_info.name = table->get_as<std::string>("name").value_or("");
 			temp_dataref_info.dataref = new_dataref;
 			temp_dataref_info.type = table->get_as<std::string>("type").value_or("");
@@ -129,7 +153,14 @@ void dataref::get_data_list()
 				temp_dataref_info.start_index = std::nullopt;
 				temp_dataref_info.num_value = std::nullopt;
 			}
-			dataref_list_.emplace_back(temp_dataref_info);
+
+			if (new_dataref != nullptr) {
+				dataref_list_.emplace_back(temp_dataref_info);
+			}
+			else {
+				// Push to not found list to retry at later time
+				not_found_list_.emplace_back(temp_dataref_info);
+			}
 		}
 	}
 	catch (const cpptoml::parse_exception& ex)
@@ -174,7 +205,7 @@ std::string dataref::get_value_char_array(XPLMDataRef in_dataref, int start_inde
 	return std::string(temp.get());
 }
 
-void dataref::init() 
+void dataref::init()
 {
 	set_plugin_path(get_plugin_path());
 	get_data_list();

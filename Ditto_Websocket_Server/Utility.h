@@ -4,15 +4,22 @@
 #include "XPLMDataAccess.h"
 #include "XPLMUtilities.h"
 #include "XPLMDataAccess.h"
+#include "XPLMPlanes.h"
 #include <string>
 
-// Some commn methods here
+struct aircraft_info 
+{
+	std::string aircraft_name;
+	std::string aircraft_path;
+};
 
-static std::string get_plugin_path() {
-	const auto my_id = XPLMFindPluginBySignature("phuong.x-plane.ditto.websocket");;
-	char buffer[1024]{};
-	XPLMGetPluginInfo(my_id, nullptr, buffer, nullptr, nullptr);
-	auto return_string = std::string(buffer);
+std::string get_plugin_path() 
+{
+	const auto my_id = XPLMFindPluginBySignature("phuong.x-plane.ditto.websocket");
+	//char buffer[1024]{};
+	std::vector<char> buffer(1024);
+	XPLMGetPluginInfo(my_id, nullptr, buffer.data(), nullptr, nullptr);
+	auto return_string = std::string(buffer.data());
 	auto pos = return_string.find(R"(64\win.xpl)");
 	if (pos != std::string::npos)
 	{
@@ -20,4 +27,13 @@ static std::string get_plugin_path() {
 		return_string.erase(pos, return_string.length()); // Trim "64\win.xpl"
 	}
 	return return_string;
+}
+
+aircraft_info get_loaded_aircraft() 
+{
+	std::vector<char> name_buffer(256);
+	std::vector<char> path_buffer(512);
+	XPLMGetNthAircraftModel(0, name_buffer.data(), path_buffer.data());
+
+	return aircraft_info{ name_buffer.data(), path_buffer.data() };
 }
