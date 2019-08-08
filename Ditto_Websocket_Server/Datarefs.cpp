@@ -217,9 +217,32 @@ std::vector<float> dataref::get_value_float_array(XPLMDataRef in_dataref, int st
 
 std::string dataref::get_value_char_array(XPLMDataRef in_dataref, int start_index, int number_of_value)
 {
-	std::unique_ptr<char[]> temp(new char[number_of_value] {'\0'});
-	XPLMGetDatab(in_dataref, temp.get(), start_index, number_of_value);
-	return std::string(temp.get());
+	// The the current string size only first
+	auto current_string_size = XPLMGetDatab(in_dataref, nullptr, 0, 0);
+
+	if (start_index != -1) {
+		if (number_of_value == -1) {
+			// Get the string from start_index to the end
+			std::unique_ptr<char[]> temp(new char[current_string_size] {'\0'});
+			XPLMGetDatab(in_dataref, temp.get(), start_index, current_string_size);
+			return std::string(temp.get());
+		}
+		else {
+			// Get part of the string starting from start_index until number_of_value is reached
+			if (current_string_size > number_of_value) {
+				std::unique_ptr<char[]> temp(new char[number_of_value] {'\0'});
+				XPLMGetDatab(in_dataref, temp.get(), start_index, number_of_value);
+				return std::string(temp.get());
+			}
+		}
+		return "";
+	}
+	else {
+		// Get the whole string
+		std::unique_ptr<char[]> temp(new char[current_string_size] {'\0'});
+		XPLMGetDatab(in_dataref, temp.get(), 0, current_string_size);
+		return std::string(temp.get());
+	}
 }
 
 bool dataref::init()
