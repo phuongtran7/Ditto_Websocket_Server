@@ -111,12 +111,13 @@ size_t dataref::get_flexbuffers_size()
 }
 
 void dataref::retry_dataref() {
+	// Try and get access to not_found_list_ and dataref_list_
+	std::lock_guard<std::mutex> guard(data_lock);
+
 	// TO DO: add a flag in Dataref.toml to mark a dataref that will be created by another plugin later
 	// so that Ditto can search for it later after the plane loaded.
 	// XPLMFindDataRef is rather expensive so avoid using this
 	if (!not_found_list_.empty()) {
-		// Try and get access to not_found_list_ and dataref_list_
-		std::lock_guard<std::mutex> guard(data_lock);
 		for (auto it = not_found_list_.begin(); it != not_found_list_.end(); ++it) {
 			it->dataref = XPLMFindDataRef(it->dataref_name.c_str());
 			if (it->dataref != nullptr) {
