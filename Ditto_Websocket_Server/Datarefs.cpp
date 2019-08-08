@@ -55,23 +55,23 @@ std::vector<uint8_t> dataref::get_flexbuffers_data()
 	const auto map_start = flexbuffers_builder_.StartMap();
 
 	for (auto& dataref : dataref_list_) {
-
-		// If start and end index does not present that means the dataref is single value dataref
-		if (!dataref.start_index.has_value() && !dataref.num_value.has_value()) {
-			if (dataref.type == "int") {
-				flexbuffers_builder_.Int(dataref.name.c_str(), get_value_int(dataref.dataref));
-			}
-			else if (dataref.type == "float") {
-				flexbuffers_builder_.Float(dataref.name.c_str(), get_value_float(dataref.dataref));
-			}
-			else if (dataref.type == "double") {
-				flexbuffers_builder_.Double(dataref.name.c_str(), get_value_double(dataref.dataref));
-			}
+		// String is special case so handle it first
+		if (dataref.type == "char") {
+			auto str = get_value_char_array(dataref.dataref, dataref.start_index.value_or(-1), dataref.num_value.value_or(-1));
+			flexbuffers_builder_.String(dataref.name.c_str(), str);
 		}
 		else {
-			if (dataref.type == "char") {
-				auto str = get_value_char_array(dataref.dataref, dataref.start_index.value(), dataref.num_value.value());
-				flexbuffers_builder_.String(dataref.name.c_str(), str);
+			// If start and end index does not present that means the dataref is single value dataref
+			if (!dataref.start_index.has_value() && !dataref.num_value.has_value()) {
+				if (dataref.type == "int") {
+					flexbuffers_builder_.Int(dataref.name.c_str(), get_value_int(dataref.dataref));
+				}
+				else if (dataref.type == "float") {
+					flexbuffers_builder_.Float(dataref.name.c_str(), get_value_float(dataref.dataref));
+				}
+				else if (dataref.type == "double") {
+					flexbuffers_builder_.Double(dataref.name.c_str(), get_value_double(dataref.dataref));
+				}
 			}
 			else {
 				const auto vector_start = flexbuffers_builder_.StartVector(dataref.name.c_str());
@@ -159,12 +159,17 @@ bool dataref::get_data_list()
 			temp_dataref_info.dataref = new_dataref;
 			temp_dataref_info.type = table->get_as<std::string>("type").value_or("");
 
-			if (start != -1 && num != -1) {
+			if (start != -1) {
 				temp_dataref_info.start_index = start;
-				temp_dataref_info.num_value = num;
 			}
 			else {
 				temp_dataref_info.start_index = std::nullopt;
+			}
+
+			if (num != -1) {
+				temp_dataref_info.num_value = num;
+			}
+			else {
 				temp_dataref_info.num_value = std::nullopt;
 			}
 
@@ -217,32 +222,38 @@ std::vector<float> dataref::get_value_float_array(XPLMDataRef in_dataref, int st
 
 std::string dataref::get_value_char_array(XPLMDataRef in_dataref, int start_index, int number_of_value)
 {
-	// The the current string size only first
+	// Get the current string size only first
 	auto current_string_size = XPLMGetDatab(in_dataref, nullptr, 0, 0);
 
-	if (start_index != -1) {
-		if (number_of_value == -1) {
-			// Get the string from start_index to the end
-			std::unique_ptr<char[]> temp(new char[current_string_size] {'\0'});
-			XPLMGetDatab(in_dataref, temp.get(), start_index, current_string_size);
+	// Only get data when there is something in the string dataref
+	if (current_string_size) {
+		if (start_index == -1) {
+			// Get the whole string
+			auto temp_buffer_size = current_string_size + 1;
+			std::unique_ptr<char[]> temp(new char[temp_buffer_size] {'\0'}); // Null terminated string
+			XPLMGetDatab(in_dataref, temp.get(), 0, current_string_size);
 			return std::string(temp.get());
 		}
 		else {
-			// Get part of the string starting from start_index until number_of_value is reached
-			if (current_string_size > number_of_value) {
-				std::unique_ptr<char[]> temp(new char[number_of_value] {'\0'});
-				XPLMGetDatab(in_dataref, temp.get(), start_index, number_of_value);
+			if (number_of_value == -1) {
+				// Get the string from start_index to the end
+				auto temp_buffer_size = current_string_size + 1;
+				std::unique_ptr<char[]> temp(new char[temp_buffer_size] {'\0'}); // Null terminated string
+				XPLMGetDatab(in_dataref, temp.get(), start_index, current_string_size);
 				return std::string(temp.get());
 			}
+			else {
+				// Get part of the string starting from start_index until number_of_value is reached
+				auto temp_buffer_size = number_of_value + 1;
+				if (number_of_value <= current_string_size) {
+					std::unique_ptr<char[]> temp(new char[temp_buffer_size] {'\0'}); // Null terminated string
+					XPLMGetDatab(in_dataref, temp.get(), start_index, number_of_value);
+					return std::string(temp.get());
+				}
+			}
 		}
-		return "";
 	}
-	else {
-		// Get the whole string
-		std::unique_ptr<char[]> temp(new char[current_string_size] {'\0'});
-		XPLMGetDatab(in_dataref, temp.get(), 0, current_string_size);
-		return std::string(temp.get());
-	}
+	return "";
 }
 
 bool dataref::init()
