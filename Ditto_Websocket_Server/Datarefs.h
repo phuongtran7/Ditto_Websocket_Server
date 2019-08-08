@@ -1,11 +1,11 @@
 #pragma once
-#include "Utility.h"
 #include <vector>
 #include <deque>
 #include <optional>
 #include "flatbuffers/flatbuffers.h"
 #include "flatbuffers/flexbuffers.h"
 #include "Schema_generated.h"
+#include "Utility.h"
 
 class dataref {
 private:

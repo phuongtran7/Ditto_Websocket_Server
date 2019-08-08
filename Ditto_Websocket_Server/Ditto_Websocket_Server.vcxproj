@@ -140,6 +140,7 @@
   <ItemGroup>
     <ClCompile Include="Datarefs.cpp" />
     <ClCompile Include="Ditto_Websocket_Server.cpp" />
+    <ClCompile Include="Utility.cpp" />
     <ClCompile Include="Websocket.cpp" />
   </ItemGroup>
   <ItemGroup>

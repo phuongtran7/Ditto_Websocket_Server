@@ -7,7 +7,13 @@ websocketpp::lib::thread asio_thread;
 XPLMFlightLoopID data_flight_loop_id{};
 XPLMFlightLoopID retry_flight_loop_id{};
 
-static float	data_callback(
+static float data_callback(
+	float                inElapsedSinceLastCall,
+	float                inElapsedTimeSinceLastFlightLoop,
+	int                  inCounter,
+	void* inRefcon);
+
+static float retry_callback(
 	float                inElapsedSinceLastCall,
 	float                inElapsedTimeSinceLastFlightLoop,
 	int                  inCounter,
