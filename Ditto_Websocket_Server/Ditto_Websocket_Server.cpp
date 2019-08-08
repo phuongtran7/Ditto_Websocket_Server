@@ -61,7 +61,7 @@ PLUGIN_API int XPluginEnable(void) {
 				retry_flight_loop_id = XPLMCreateFlightLoop(&params);
 				if (retry_flight_loop_id != nullptr)
 				{
-					XPLMScheduleFlightLoop(retry_flight_loop_id, -1, true);
+					XPLMScheduleFlightLoop(retry_flight_loop_id, 5, true);
 				}
 			}
 		}

@@ -19,10 +19,11 @@ If you don't want to compile the plugin by yourself, you can head over the <a hr
 
 ## Usage
 ### Start up
-1. Copy the compiled Ditto into plugin folder in X-Plane.
-2. Copy `Datarefs.toml` file into Ditto folder. For example, `path_to_aircraft/plugins/Ditto/`.
-3. Define all the datarefs that the plugin should send the value out.
-4. Start X-Plane.
+1. Copy the compiled Ditto into main plugin folder in X-Plane.
+2. Copy `Datarefs.toml` file into aircraft folder. For example, `X_Plane root/Aircraft/Laminar Research/Boeing B737-800/`.
+3. Define port number that Ditto will listen on. If `port` is not defined, Ditto will use default `1234` port.
+4. Define all the datarefs that the plugin should send the value out. Ditto has the ability to retry finding the dataref if that dataref is created by another plugin that loaded after Ditto. However, looking for dataref is a rather exenpsive task, so Ditto only retrying after every 5 seconds. One way to work around that is making Ditto load last by renaming the Ditto plugin folder, for example `zDitto` and copy it into aircraft folder. This way Ditto will be loaded last, after other plugins finish publishing datarefs.
+5. Start X-Plane.
 
 ### Modifying datarefs/endpoints
 1. Disable Ditto by using Plugin Manager in X-Plane.
@@ -31,9 +32,7 @@ If you don't want to compile the plugin by yourself, you can head over the <a hr
 4. Re-enable Ditto and unpause X-Plane if necessary.
 
 ## Limitations
-1. Currently, if Ditto needs to be installed in multiple aircrafts, it has to be copied into each aircraft's plugin folder along with the `Datarefs.toml` file. This is currently the only way for Ditto to have set of datarefs for each aircraft.
-
-2. Even though Ditto supports multiple clients connecting at the same time, there is currently no way to specify which client should receive which values. All clients will be receiving the same data that is output by Ditto.
+1. Even though Ditto supports multiple clients connecting at the same time, there is currently no way to specify which client should receive which values. All clients will be receiving the same data that is output by Ditto.
 
 ## Code samples
 1. Example `Datarefs.toml` content:
