@@ -148,6 +148,10 @@ void dataref::retry_dataref() {
 		}
 		retry_num++;
 	}
+	else {
+		// Empty the not_found_list_ to un-register the callback for retrying
+		not_found_list_.clear();
+	}
 }
 
 bool dataref::get_data_list()
