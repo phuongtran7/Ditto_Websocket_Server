@@ -139,7 +139,7 @@ void dataref::retry_dataref() {
 	// TO DO: add a flag in Dataref.toml to mark a dataref that will be created by another plugin later
 	// so that Ditto can search for it later after the plane loaded.
 	// XPLMFindDataRef is rather expensive so avoid using this
-	if (!not_found_list_.empty() && retry_num  <= retry_limit) {
+	if (!not_found_list_.empty() && retry_num <= retry_limit) {
 		XPLMDebugString(("Cannot find " + std::to_string(not_found_list_.size()) + " dataref. Retrying.\n").c_str());
 		for (auto it = not_found_list_.begin(); it != not_found_list_.end(); ++it) {
 			std::string s = "Retrying " + it->dataref_name + "\n";
