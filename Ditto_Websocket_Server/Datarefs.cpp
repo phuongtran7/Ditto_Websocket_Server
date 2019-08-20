@@ -74,18 +74,22 @@ std::vector<uint8_t> dataref::get_flexbuffers_data()
 				}
 			}
 			else {
-				const auto vector_start = flexbuffers_builder_.StartVector(dataref.name.c_str());
 				if (dataref.type == "int") {
-					for (auto int_num : get_value_int_array(dataref.dataref, dataref.start_index.value(), dataref.num_value.value())) {
-						flexbuffers_builder_.Int(int_num);
-					}
+					auto int_num = get_value_int_array(dataref.dataref, dataref.start_index.value(), dataref.num_value.value());
+					flexbuffers_builder_.TypedVector(dataref.name.c_str(), [&] {
+						for (auto i : int_num) {
+							flexbuffers_builder_.Int(i);
+						}
+						});
 				}
 				else if (dataref.type == "float") {
-					for (auto float_num : get_value_float_array(dataref.dataref, dataref.start_index.value(), dataref.num_value.value())) {
-						flexbuffers_builder_.Float(float_num);
-					}
+					auto float_num = get_value_float_array(dataref.dataref, dataref.start_index.value(), dataref.num_value.value());
+					flexbuffers_builder_.Vector(dataref.name.c_str(), [&] {
+						for (auto i : float_num) {
+							flexbuffers_builder_.Float(i);
+						}
+						});
 				}
-				flexbuffers_builder_.EndVector(vector_start, false, false);
 			}
 		}
 	}
