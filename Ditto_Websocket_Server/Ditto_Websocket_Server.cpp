@@ -59,13 +59,14 @@ PLUGIN_API int XPluginEnable(void) {
 		if (new_data.init()) {
 			if (new_data.get_not_found_list_size() != 0) {
 				// Register a new flight loop to retry finding datarefs
-				XPLMCreateFlightLoop_t params = { sizeof(XPLMCreateFlightLoop_t), xplm_FlightLoop_Phase_AfterFlightModel, retry_callback, nullptr };
-				retry_flight_loop_id = XPLMCreateFlightLoop(&params);
+				XPLMCreateFlightLoop_t retry_params = { sizeof(XPLMCreateFlightLoop_t), xplm_FlightLoop_Phase_AfterFlightModel, retry_callback, nullptr };
+				retry_flight_loop_id = XPLMCreateFlightLoop(&retry_params);
 				if (retry_flight_loop_id != nullptr)
 				{
 					XPLMScheduleFlightLoop(retry_flight_loop_id, 5, true);
 				}
 			}
+
 			try {
 				asio_thread = websocketpp::lib::thread(&broadcast_server::run, &server_instance);
 			}
@@ -74,8 +75,8 @@ PLUGIN_API int XPluginEnable(void) {
 				return 0;
 			}
 
-			XPLMCreateFlightLoop_t params = { sizeof(XPLMCreateFlightLoop_t), xplm_FlightLoop_Phase_AfterFlightModel, data_callback, nullptr };
-			data_flight_loop_id = XPLMCreateFlightLoop(&params);
+			XPLMCreateFlightLoop_t data_params = { sizeof(XPLMCreateFlightLoop_t), xplm_FlightLoop_Phase_AfterFlightModel, data_callback, nullptr };
+			data_flight_loop_id = XPLMCreateFlightLoop(&data_params);
 			if (data_flight_loop_id == nullptr)
 			{
 				XPLMDebugString("Cannot create flight loop. Exiting Ditto.\n");
@@ -105,13 +106,16 @@ float data_callback(float inElapsedSinceLastCall,
 	const auto out_data = new_data.get_serialized_data();
 	const auto size = new_data.get_serialized_size();
 
-	auto verifier = flatbuffers::Verifier(out_data, size);
+	server_instance.send(out_data, size);
+
+	/*auto verifier = flatbuffers::Verifier(out_data, size);
 	if (Ditto::VerifyDataBuffer(verifier)) {
 		server_instance.send(out_data, size);
 	}
 	else {
 		XPLMDebugString("Flatbuffers verifier failed.\n");
-	}
+	}*/
+
 	new_data.reset_builder();
 	return -1.0;
 }
