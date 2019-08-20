@@ -58,7 +58,9 @@ std::vector<uint8_t> dataref::get_flexbuffers_data()
 		// String is special case so handle it first
 		if (dataref.type == "char") {
 			auto str = get_value_char_array(dataref.dataref, dataref.start_index.value_or(-1), dataref.num_value.value_or(-1));
-			flexbuffers_builder_.String(dataref.name.c_str(), str);
+			if (!str.empty()) {
+				flexbuffers_builder_.String(dataref.name.c_str(), str.c_str());
+			}
 		}
 		else {
 			// If start and end index does not present that means the dataref is single value dataref
@@ -77,15 +79,15 @@ std::vector<uint8_t> dataref::get_flexbuffers_data()
 				if (dataref.type == "int") {
 					auto int_num = get_value_int_array(dataref.dataref, dataref.start_index.value(), dataref.num_value.value());
 					flexbuffers_builder_.TypedVector(dataref.name.c_str(), [&] {
-						for (auto i : int_num) {
+						for (auto& i : int_num) {
 							flexbuffers_builder_.Int(i);
 						}
 						});
 				}
 				else if (dataref.type == "float") {
 					auto float_num = get_value_float_array(dataref.dataref, dataref.start_index.value(), dataref.num_value.value());
-					flexbuffers_builder_.Vector(dataref.name.c_str(), [&] {
-						for (auto i : float_num) {
+					flexbuffers_builder_.TypedVector(dataref.name.c_str(), [&] {
+						for (auto& i : float_num) {
 							flexbuffers_builder_.Float(i);
 						}
 						});
@@ -249,7 +251,7 @@ std::string dataref::get_value_char_array(XPLMDataRef in_dataref, int start_inde
 	auto current_string_size = XPLMGetDatab(in_dataref, nullptr, 0, 0);
 
 	// Only get data when there is something in the string dataref
-	if (current_string_size) {
+	if (current_string_size != 0) {
 		if (start_index == -1) {
 			// Get the whole string
 			auto temp_buffer_size = current_string_size + 1;
@@ -276,7 +278,7 @@ std::string dataref::get_value_char_array(XPLMDataRef in_dataref, int start_inde
 			}
 		}
 	}
-	return "";
+	return std::string();
 }
 
 bool dataref::init()
