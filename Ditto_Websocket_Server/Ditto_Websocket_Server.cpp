@@ -7,13 +7,13 @@ websocketpp::lib::thread asio_thread;
 XPLMFlightLoopID data_flight_loop_id{};
 XPLMFlightLoopID retry_flight_loop_id{};
 
-static float data_callback(
+float data_callback(
 	float                inElapsedSinceLastCall,
 	float                inElapsedTimeSinceLastFlightLoop,
 	int                  inCounter,
 	void* inRefcon);
 
-static float retry_callback(
+float retry_callback(
 	float                inElapsedSinceLastCall,
 	float                inElapsedTimeSinceLastFlightLoop,
 	int                  inCounter,
@@ -24,9 +24,13 @@ PLUGIN_API int XPluginStart(
 	char* outSig,
 	char* outDesc)
 {
-	strcpy_s(outName, 23, "Ditto Websocket Server");
-	strcpy_s(outSig, 31, "phuong.x-plane.ditto.websocket");
-	strcpy_s(outDesc, 28, "Ditto with Websocket Server");
+	std::string name = "Ditto Websocket Server";
+	std::string signature = "phuong.x-plane.ditto.websocket";
+	std::string description = "Ditto with Websocket Server";
+
+	strcpy_s(outName, name.length() + 1, name.c_str());
+	strcpy_s(outSig, signature.length() + 1, signature.c_str());
+	strcpy_s(outDesc, description.length() + 1, description.c_str());
 
 	return 1;
 }
