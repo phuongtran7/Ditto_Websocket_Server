@@ -168,45 +168,49 @@ bool dataref::get_data_list()
 		// Create a list of all the Data table in the toml file
 		const auto data_list = input_file->get_table_array("Data");
 
-		// Loop through all the tables
-		for (const auto& table : *data_list)
-		{
-			auto temp_name = table->get_as<std::string>("string").value_or("");
+		if (data_list != nullptr) {
+			// Loop through all the tables
+			for (const auto& table : *data_list)
+			{
+				auto temp_name = table->get_as<std::string>("string").value_or("");
 
-			XPLMDataRef new_dataref = XPLMFindDataRef(temp_name.c_str());
+				XPLMDataRef new_dataref = XPLMFindDataRef(temp_name.c_str());
 
-			auto start = table->get_as<int>("start_index").value_or(-1);
-			auto num = table->get_as<int>("num_value").value_or(-1);
-			dataref_info temp_dataref_info;
+				auto start = table->get_as<int>("start_index").value_or(-1);
+				auto num = table->get_as<int>("num_value").value_or(-1);
+				dataref_info temp_dataref_info;
 
-			temp_dataref_info.dataref_name = temp_name;
-			temp_dataref_info.name = table->get_as<std::string>("name").value_or("");
-			temp_dataref_info.dataref = new_dataref;
-			temp_dataref_info.type = table->get_as<std::string>("type").value_or("");
+				temp_dataref_info.dataref_name = temp_name;
+				temp_dataref_info.name = table->get_as<std::string>("name").value_or("");
+				temp_dataref_info.dataref = new_dataref;
+				temp_dataref_info.type = table->get_as<std::string>("type").value_or("");
 
-			if (start != -1) {
-				temp_dataref_info.start_index = start;
-			}
-			else {
-				temp_dataref_info.start_index = std::nullopt;
-			}
+				if (start != -1) {
+					temp_dataref_info.start_index = start;
+				}
+				else {
+					temp_dataref_info.start_index = std::nullopt;
+				}
 
-			if (num != -1) {
-				temp_dataref_info.num_value = num;
-			}
-			else {
-				temp_dataref_info.num_value = std::nullopt;
-			}
+				if (num != -1) {
+					temp_dataref_info.num_value = num;
+				}
+				else {
+					temp_dataref_info.num_value = std::nullopt;
+				}
 
-			if (temp_dataref_info.dataref == NULL) {
-				// Push to not found list to retry at later time
-				not_found_list_.emplace_back(temp_dataref_info);
+				if (temp_dataref_info.dataref == NULL) {
+					// Push to not found list to retry at later time
+					not_found_list_.emplace_back(temp_dataref_info);
+				}
+				else {
+					dataref_list_.emplace_back(temp_dataref_info);
+				}
 			}
-			else {
-				dataref_list_.emplace_back(temp_dataref_info);
-			}
+			// Table empty
+			return true;
 		}
-		return true;
+		return false;
 	}
 	catch (const cpptoml::parse_exception& ex)
 	{

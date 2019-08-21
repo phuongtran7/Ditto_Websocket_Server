@@ -87,7 +87,7 @@ PLUGIN_API int XPluginEnable(void) {
 			}
 		}
 		else {
-			XPLMDebugString("Cannot find \"Datarefs.toml\". Exiting.\n");
+			XPLMDebugString("Cannot find \"Datarefs.toml\" or \"Datarefs.toml\" is empty. Exiting.\n");
 			return 0;
 		}
 	}
