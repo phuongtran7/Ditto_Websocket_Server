@@ -56,7 +56,7 @@ std::vector<uint8_t> dataref::get_flexbuffers_data()
 
 	for (auto& dataref : dataref_list_) {
 		// String is special case so handle it first
-		if (dataref.type == "char") {
+		if (dataref.type == "string") {
 			auto str = get_value_char_array(dataref.dataref, dataref.start_index.value_or(-1), dataref.num_value.value_or(-1));
 			if (!str.empty()) {
 				flexbuffers_builder_.String(dataref.name.c_str(), str.c_str());

@@ -17,6 +17,6 @@ num_value = 2 # Number of value after the start_index Ditto should read.
 [[Data]]
 name = "legs"
 string = "laminar/B738/fms/legs"
-type = "char"
+type = "string"
 start_index = 0
 num_value = 512
